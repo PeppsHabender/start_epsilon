@@ -1,0 +1,45 @@
+name: Flutter2Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.22.1
+      - run: flutter config --enable-web
+        shell: bash
+      - run: flutter pub get
+        shell: bash
+      - run: dart run flutter_iconpicker:generate_packs --packs lineAwesomeIcons
+        shell: bash
+      - run: flutter build web --release --web-renderer=canvaskit --base-href "/" --no-tree-shake-icons
+        shell: bash
+      - run: git config user.name github-actions
+        shell: bash
+      - run: git config user.email github-actions@github.com
+        shell: bash
+      - run: git --work-tree build/web add --all
+        shell: bash
+      - run: git commit -m "Automatic deployment by github-actions"
+        shell: bash
+      - run: git push origin HEAD:gh-pages --force
+        shell: bash
+
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Delete deployment
+        uses: strumwolf/delete-deployment-environment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: github-pages
+          onlyRemoveDeployments: true

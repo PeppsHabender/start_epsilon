@@ -10,6 +10,8 @@ import 'package:start_page/config/config.dart';
 import 'package:start_page/config/config_impl.dart';
 
 class AddBookmarkController extends GetxController {
+  Bookmark? _bookmark;
+
   final TextEditingController idController = TextEditingController();
   final TextEditingController urlController = TextEditingController();
 
@@ -22,9 +24,38 @@ class AddBookmarkController extends GetxController {
 
   final GeneralConfig config = Get.find<IConfig>().generalConfig;
 
+  late String addText;
+
   Timer? _typingTimer;
 
-  Bookmark build() => Bookmark(
+  AddBookmarkController();
+
+  void adjustTo(Bookmark? bookmark) {
+    if(bookmark == null) {
+      addText = "Add";
+      reset();
+      return;
+    }
+
+    _bookmark = bookmark;
+
+    idController.text = bookmark!.id;
+    urlController.text = bookmark!.url;
+
+    iconUrl.value.value = bookmark!.iconUri;
+    selectedIcon.value = bookmark!.iconData;
+
+    openInNewTab.value = !(bookmark!.openInSame ?? true);
+    primaryColor.value = bookmark!.primaryColor;
+
+    addText = "Edit";
+  }
+
+  void addBookmark() {
+    Get.find<IBookmarkService>().addBookmark(_build(), _bookmark);
+  }
+
+  Bookmark _build() => Bookmark(
       idController.text,
       _sanitizeUri(urlController.text).toString(),
       iconUrl.value.value,

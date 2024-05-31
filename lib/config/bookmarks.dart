@@ -5,28 +5,34 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_iconpicker/Serialization/icondata_serialization.dart';
 import 'package:get/get.dart';
 
+const String _separator = ">";
+const String _prefix = "BOOKMARK\$";
+
 abstract class IComponent {
-  abstract final String id;
+  abstract final String _id;
+
+  String get id => _id.substring(_id.lastIndexOf(_separator) + 1);
 
   IComponent _addBookmark(final List<String> ids, final Bookmark bookmark);
+
+  bool _removeBookmark(final List<String> ids, final Bookmark bookmark);
 }
 
 class Nested extends IComponent {
   @override
-  final String id;
+  final String _id;
   final List<IComponent> children;
 
-  Nested(this.id, this.children);
+  Nested(this._id, this.children);
 
   @override
   IComponent _addBookmark(List<String> ids, Bookmark bookmark) {
     final String curr = ids.removeAt(0);
     if(ids.isEmpty) {
-      bookmark._setId(curr);
       return this..children.add(bookmark);
     }
 
-    final IComponent? matching = children.firstWhereOrNull((e) => e.id == curr);
+    final IComponent? matching = children.firstWhereOrNull((e) => e is Nested && e.id == curr);
     if(matching != null) {
       matching._addBookmark(ids, bookmark);
       return this;
@@ -34,18 +40,31 @@ class Nested extends IComponent {
 
     return this..children.add(Nested(curr, [])._addBookmark(ids, bookmark));
   }
+
+  @override
+  bool _removeBookmark(List<String> ids, Bookmark bookmark) {
+    if(ids.isEmpty) return true;
+
+    final String curr = ids.removeAt(0);
+    final IComponent? matching = children.firstWhereOrNull((e) => (ids.isEmpty ? e is Bookmark : e is Nested) && e.id == curr);
+    final bool result = matching?._removeBookmark(ids, bookmark) ?? false;
+
+    if(result) {
+      children.removeWhere((e) => e == matching);
+    }
+
+    return children.isEmpty;
+  }
 }
 
 class Bookmark extends IComponent {
+  @override
   String _id;
   final String url;
   final String? iconUri;
   final IconData? iconData;
   final bool? openInSame;
   final Color? primaryColor;
-
-  @override
-  String get id => _id;
 
   void _setId(final String id) => _id = id;
 
@@ -72,11 +91,14 @@ class Bookmark extends IComponent {
   IComponent _addBookmark(List<String> ids, Bookmark bookmark) {
     final String curr = ids.removeAt(0);
     if(ids.isEmpty) {
-      return bookmark.._setId(curr);
+      return bookmark;
     }
 
     return Nested(curr, [this.._setId("~")])._addBookmark(ids, bookmark);
   }
+
+  @override
+  bool _removeBookmark(List<String> ids, Bookmark bookmark) => true;
 }
 
 abstract class IBookmarkService {
@@ -84,12 +106,11 @@ abstract class IBookmarkService {
 
   abstract final RxList<Rx<IComponent>> components;
 
-  void addBookmark(final Bookmark bookmark);
+  void addBookmark(final Bookmark bookmark, [final Bookmark? old]);
+  void removeBookmark(Bookmark bookmark);
 }
 
 class _BookmarkService extends IBookmarkService {
-  static const String _separator = ">";
-  static const String _prefix = "BOOKMARK\$";
   static final Storage _storage = window.localStorage;
 
   @override
@@ -103,17 +124,37 @@ class _BookmarkService extends IBookmarkService {
   }
 
   @override
-  void addBookmark(Bookmark bookmark) {
-    _storage[_prefix + bookmark.id] = jsonEncode(bookmark);
-    final List<String> idSplit = bookmark.id.split(_separator);
+  void addBookmark(Bookmark bookmark, [final Bookmark? old]) {
+    if(old != null) removeBookmark(old);
+
+    _storage[_prefix + bookmark._id] = jsonEncode(bookmark);
+    final List<String> idSplit = bookmark._id.split(_separator);
 
     final Rx<IComponent>? matching = components.firstWhereOrNull((e) => e.value.id == idSplit[0]);
-    if(matching == null && idSplit.length == 1) {
+    if(idSplit.length == 1) {
       components.add(bookmark.obs);
-    } else if(matching == null) {
+    } else if(matching == null || matching.value is Bookmark) {
       components.add((Nested(idSplit.removeAt(0), []).._addBookmark(idSplit, bookmark)).obs);
     } else {
       matching.value = matching.value._addBookmark(idSplit..removeAt(0), bookmark);
     }
+
+    components.refresh();
+  }
+
+  @override
+  void removeBookmark(Bookmark bookmark) {
+    _storage.remove(_prefix + bookmark._id);
+    final List<String> idSplit = bookmark._id.split(_separator);
+
+    final String fst = idSplit.removeAt(0);
+    final Rx<IComponent>? matching = components.firstWhereOrNull((e) => e.value.id == fst);
+    final bool result = matching?.value._removeBookmark(idSplit, bookmark) ?? false;
+
+    if(result) {
+      components.removeWhere((e) => e.value == matching?.value);
+    }
+
+    components.refresh();
   }
 }

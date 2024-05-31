@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:start_page/config/config.dart';
+import 'package:start_page/utils/extensions.dart';
 import 'package:start_page/utils/suggestions.dart';
 
 import '../config/config_impl.dart';
@@ -17,7 +18,7 @@ class SearchBox extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
-          border: Border.all(width: 1.5, color: context.theme.primaryColorLight),
+          border: Border.all(width: 1.5, color: context.theme.colorScheme.onSurface),
           borderRadius: const BorderRadius.all(Radius.circular(50))
         ),
         child: Row(
@@ -54,7 +55,7 @@ class SearchBox extends StatelessWidget {
                 decorationBuilder: (context, child) => Material(
                   type: MaterialType.card,
                   elevation: 8,
-                  color: context.theme.colorScheme.surfaceVariant,
+                  color: context.theme.colorScheme.surface.darker(0.02),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(10),

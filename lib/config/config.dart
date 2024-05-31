@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:html';
 
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 import 'package:start_page/config/config_impl.dart';
 
 abstract class IConfig extends IConfigElement {

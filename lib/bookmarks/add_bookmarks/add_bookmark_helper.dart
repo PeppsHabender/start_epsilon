@@ -155,23 +155,26 @@ Widget _colorPickerContent() => Get.find<AddBookmarkController>().primaryColor.R
   )
 );
 
-Widget _submitButton(final GlobalKey<FormState> formKey, final void Function() close) => Align(
-  alignment: Alignment.centerRight,
-  child: Get.find<AddBookmarkController>().primaryColor.ReadOnlyWidget(
-    (color) => OutlinedButton(
-      onPressed: () {
-        if(formKey.currentState?.validate() == false) {
-          return;
-        }
+Widget _submitButton(final BuildContext context, final GlobalKey<FormState> formKey, final void Function() close) {
+  final AddBookmarkController controller = Get.find();
 
-        Get.find<IBookmarkService>().addBookmark(Get.find<AddBookmarkController>().build());
-        Get.back(closeOverlays: true);
-        Get.find<AddBookmarkController>().reset();
+  return Align(
+    alignment: Alignment.centerRight,
+    child: controller.primaryColor.ReadOnlyWidget(
+      (color) => OutlinedButton(
+        onPressed: () {
+          if(formKey.currentState?.validate() == false) {
+            return;
+          }
 
-        close();
-      },
-      style: color == null ? null : OutlinedButton.styleFrom(side: BorderSide(color: color)),
-      child: Get.find<AddBookmarkController>().primaryColor.ReadOnlyWidget((color) => Text("Add", style: TextStyle(color: color)))
+          controller.addBookmark();
+          controller.reset();
+
+          close();
+        },
+        style: color == null ? null : OutlinedButton.styleFrom(side: BorderSide(color: color)),
+        child: Text(controller.addText, style: TextStyle(color: context.theme.colorScheme.onSurface))
+      ),
     ),
-  ),
-);
+  );
+}

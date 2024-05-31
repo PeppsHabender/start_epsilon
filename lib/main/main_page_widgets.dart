@@ -19,7 +19,7 @@ class _BackgroundAnimationState extends State<_BackgroundAnimation> with SingleT
 
   late final AnimationController animationController = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 10),
+    duration: const Duration(seconds: 5),
   );
 
   late final Animation<double> animation = CurvedAnimation(

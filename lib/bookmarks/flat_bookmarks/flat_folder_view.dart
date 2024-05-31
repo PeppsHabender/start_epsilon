@@ -46,13 +46,13 @@ class _FlatFolderView extends StatelessWidget {
     decoration: BoxDecoration(
       boxShadow: [
         BoxShadow(
-          color: context.theme.scaffoldBackgroundColor.darker(.07),
+          color: context.theme.scaffoldBackgroundColor.darker(.07).withAlpha(150),
           blurStyle: BlurStyle.inner
         ),
         BoxShadow(
-          color: context.theme.scaffoldBackgroundColor.darker(.04),
-          spreadRadius: -2,
-          blurRadius: 4,
+          color: context.theme.scaffoldBackgroundColor.darker(.04).withAlpha(150),
+          spreadRadius: -3,
+          blurRadius: 5,
         ),
       ]
     ),

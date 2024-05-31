@@ -1,11 +1,9 @@
-import 'dart:html';
+import 'dart:ui';
 
-import 'package:color_extract/color_extract.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:image_network/image_network.dart';
 import 'package:start_page/bookmarks/neon_bookmark_view.dart';
 import 'package:start_page/config/bookmarks.dart';
 import 'package:start_page/utils/extensions.dart';

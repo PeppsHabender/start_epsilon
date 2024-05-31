@@ -1,26 +1,30 @@
 import 'dart:math';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:get/get.dart';
 import 'package:image_network/image_network.dart';
 import 'package:start_page/bookmarks/add_bookmarks/add_bookmark_controller.dart';
 import 'package:start_page/config/bookmarks.dart';
+import 'package:start_page/abstract.dart';
 import 'package:start_page/utils/extensions.dart';
-import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:start_page/utils/widgets.dart';
 
 part 'add_bookmark_helper.dart';
 
-class AddBookmark extends StatelessWidget {
-  final void Function() close;
+class AddBookmark extends CloseableWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final Bookmark? bookmark;
 
-  AddBookmark({required this.close, super.key});
+  AddBookmark({super.key, this.bookmark}) {
+    Get.lazyPut(() => AddBookmarkController());
+  }
 
   @override
   Widget build(BuildContext context) {
-    final AddBookmarkController controller = Get.find<AddBookmarkController>();
-    controller.primaryColor.value ??= context.theme.colorScheme.onBackground;
+    Get.find<AddBookmarkController>().primaryColor.value ??= context.theme.colorScheme.onSurface;
+    Get.find<AddBookmarkController>().adjustTo(bookmark);
 
     return Center(
       child: SizedBox(
@@ -44,11 +48,11 @@ class AddBookmark extends StatelessWidget {
                       const SizedBox(height: 15),
                       Expandable(
                         title: "Additional Settings",
-                        color: controller.primaryColor,
+                        color: Get.find<AddBookmarkController>().primaryColor,
                         child: _additionalSettings()
                       ),
                       const SizedBox(height: 20),
-                      _submitButton(_formKey, close)
+                      _submitButton(context, _formKey, super.close)
                     ],
                   ),
                 ),

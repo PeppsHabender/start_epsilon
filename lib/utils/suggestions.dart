@@ -1,11 +1,8 @@
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:start_page/config/config.dart';
-import 'package:start_page/utils/extensions.dart';
 
 import '../config/config_impl.dart';
 

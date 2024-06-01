@@ -4,14 +4,14 @@ import 'dart:html';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_iconpicker/Serialization/icondata_serialization.dart';
 import 'package:get/get.dart';
+import 'package:start_page/config/config.dart';
 
-const String _separator = ">";
 const String _prefix = "BOOKMARK\$";
 
 abstract class IComponent {
   abstract final String _id;
 
-  String get id => _id.substring(_id.lastIndexOf(_separator) + 1);
+  String get id => _id.substring(_id.lastIndexOf(IBookmarkService.separator()) + 1);
 
   IComponent _addBookmark(final List<String> ids, final Bookmark bookmark);
 
@@ -68,6 +68,8 @@ class Bookmark extends IComponent {
 
   void _setId(final String id) => _id = id;
 
+  String get wholeId => _id;
+
   Bookmark(this._id, this.url, this.iconUri, this.iconData, this.openInSame, this.primaryColor);
 
   factory Bookmark.fromJson(final Map<String, dynamic> json) => Bookmark(
@@ -86,6 +88,22 @@ class Bookmark extends IComponent {
     "openInSame": openInSame,
     "primaryColor": primaryColor?.value
   };
+
+  Bookmark copyWith({
+    String? id,
+    String? url,
+    String? iconUri,
+    IconData? iconData,
+    bool? openInSame,
+    Color? primaryColor
+  }) => Bookmark(
+    id ?? _id,
+    url ?? this.url,
+    iconUri ?? this.iconUri,
+    iconData ?? this.iconData,
+    openInSame ?? this.openInSame,
+    primaryColor ?? this.primaryColor
+  );
 
   @override
   IComponent _addBookmark(List<String> ids, Bookmark bookmark) {
@@ -108,6 +126,8 @@ abstract class IBookmarkService {
 
   void addBookmark(final Bookmark bookmark, [final Bookmark? old]);
   void removeBookmark(Bookmark bookmark);
+
+  static String separator() => Get.find<IConfig>().generalConfig.folderSeparator.value;
 }
 
 class _BookmarkService extends IBookmarkService {
@@ -128,7 +148,7 @@ class _BookmarkService extends IBookmarkService {
     if(old != null) removeBookmark(old);
 
     _storage[_prefix + bookmark._id] = jsonEncode(bookmark);
-    final List<String> idSplit = bookmark._id.split(_separator);
+    final List<String> idSplit = bookmark._id.split(IBookmarkService.separator());
 
     final Rx<IComponent>? matching = components.firstWhereOrNull((e) => e.value.id == idSplit[0]);
     if(idSplit.length == 1) {
@@ -145,7 +165,7 @@ class _BookmarkService extends IBookmarkService {
   @override
   void removeBookmark(Bookmark bookmark) {
     _storage.remove(_prefix + bookmark._id);
-    final List<String> idSplit = bookmark._id.split(_separator);
+    final List<String> idSplit = bookmark._id.split(IBookmarkService.separator());
 
     final String fst = idSplit.removeAt(0);
     final Rx<IComponent>? matching = components.firstWhereOrNull((e) => e.value.id == fst);

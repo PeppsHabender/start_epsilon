@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_network/image_network.dart';
 import 'package:start_page/bookmarks/add_bookmarks/add_bookmark.dart';
-import 'package:start_page/bookmarks/add_bookmarks/add_bookmark_controller.dart';
 import 'package:start_page/config/bookmarks.dart';
+import 'package:start_page/config/config.dart';
 import 'package:start_page/main/main_page.dart';
 import 'package:start_page/utils/extensions.dart';
 
@@ -71,7 +71,9 @@ class NeonBookmarkView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _bookmarkIcon(),
-              Text(bookmark.id.substring(bookmark.id.lastIndexOf(">") + 1))
+              Get.find<IConfig>().generalConfig.folderSeparator.ReadOnlyWidget((separator) =>
+                Text(bookmark.id.substring(bookmark.id.lastIndexOf(separator) + 1)
+              ))
             ],
           ),
         ),
@@ -98,11 +100,20 @@ class NeonBookmarkView extends StatelessWidget {
       return Icon(iconData, size: 70, color: bookmark.primaryColor);
     }
 
-    return ImageNetwork(
-      onTap: _openUrl,
-      image: bookmark.iconUri ?? "",
-      height: 70,
-      width: 70,
+    return Stack(
+      children: [
+        ClipRRect(
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+          )
+        ),
+        ImageNetwork(
+          onTap: _openUrl,
+          image: bookmark.iconUri ?? "",
+          height: 70,
+          width: 70,
+        ),
+      ],
     );
   }
 

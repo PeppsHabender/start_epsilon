@@ -39,14 +39,14 @@ class AddBookmarkController extends GetxController {
 
     _bookmark = bookmark;
 
-    idController.text = bookmark!.id;
-    urlController.text = bookmark!.url;
+    idController.text = bookmark.wholeId;
+    urlController.text = bookmark.url;
 
-    iconUrl.value.value = bookmark!.iconUri;
-    selectedIcon.value = bookmark!.iconData;
+    iconUrl.value.value = bookmark.iconUri;
+    selectedIcon.value = bookmark.iconData;
 
-    openInNewTab.value = !(bookmark!.openInSame ?? true);
-    primaryColor.value = bookmark!.primaryColor;
+    openInNewTab.value = !(bookmark.openInSame ?? true);
+    primaryColor.value = bookmark.primaryColor;
 
     addText = "Edit";
   }
@@ -95,6 +95,5 @@ class AddBookmarkController extends GetxController {
     iconController.searchTextController.text = "";
 
     openInNewTab.value = true;
-    //primaryColor.value = null;
   }
 }

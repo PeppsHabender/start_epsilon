@@ -12,6 +12,10 @@ typedef RxReadAddRemBuilder<T> = Widget Function(
   void Function(T) remove
 );
 
+extension NullStringExtensions on String? {
+  String? concat(String other) => this == null ? null : this! + other;
+}
+
 extension RxExtensions<T> on Rx<T> {
   Widget ReadOnlyWidget(RxReadOnlyBuilder<T> builder, {Key? key}) =>
       ObxValue((v) => builder(v.value), this, key: key);

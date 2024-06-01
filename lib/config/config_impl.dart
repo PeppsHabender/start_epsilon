@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:get/get.dart';
 import 'package:start_page/config/config.dart';
 
@@ -46,16 +48,24 @@ class SearchConfig extends IConfigElement {
 }
 
 class GeneralConfig extends IConfigElement {
+  final RxString folderSeparator = ">".obs;
   final RxString corsProxy = "https://corsproxy.io/?".obs;
+  final Rx<Color?> primaryColor = (null as Color?).obs;
 
   GeneralConfig._();
 
   @override
   void reload() => _fromJson(getAsJson());
 
-  Map<String, dynamic> toJson() => {"corsProxy": corsProxy.value};
+  Map<String, dynamic> toJson() => {
+    "folderSeparator": folderSeparator.value,
+    "corsProxy": corsProxy.value,
+    "primaryColor": primaryColor.value
+  };
 
   _fromJson(Map<String, dynamic> json) {
+    folderSeparator.value = json["folderSeparator"];
     corsProxy.value = json["corsProxy"];
+    primaryColor.value = json["primaryColor"];
   }
 }

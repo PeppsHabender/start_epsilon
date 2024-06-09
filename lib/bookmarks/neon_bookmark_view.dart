@@ -1,6 +1,3 @@
-import 'dart:html';
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_network/image_network.dart';
@@ -9,6 +6,7 @@ import 'package:start_page/config/bookmarks.dart';
 import 'package:start_page/config/config.dart';
 import 'package:start_page/main/main_page.dart';
 import 'package:start_page/utils/extensions.dart';
+import 'package:start_page/utils/utils.dart';
 
 class NeonBookmarkView extends StatelessWidget {
   final Bookmark bookmark;
@@ -29,7 +27,7 @@ class NeonBookmarkView extends StatelessWidget {
           addItems.add(
             Expanded(
               child: Container(
-                decoration: _boxDeco(borderColor),
+                decoration: _boxDeco(context, borderColor),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -51,38 +49,36 @@ class NeonBookmarkView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ...addItems,
-            Expanded(flex: 3, child: _bookmarkView(borderColor))
+            Expanded(flex: 3, child: _bookmarkView(context, borderColor))
           ],
         );
       }),
     );
   }
 
-  Widget _bookmarkView(final Color borderColor) => InkWell(
+  Widget _bookmarkView(final BuildContext context, final Color borderColor) => InkWell(
     onTap: _openUrl,
     onSecondaryTap: _rightClicked.toggle,
-    child: ClipRRect(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-        child: Container(
-          width: 150,
-          decoration: _boxDeco(borderColor),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _bookmarkIcon(),
-              Get.find<IConfig>().generalConfig.folderSeparator.ReadOnlyWidget((separator) =>
-                Text(bookmark.id.substring(bookmark.id.lastIndexOf(separator) + 1)
-              ))
-            ],
-          ),
-        ),
+    hoverColor: context.theme.highlightColor.lighter(),
+    splashColor: bookmark.primaryColor,
+    borderRadius: BorderRadius.circular(10),
+    child: Container(
+      width: 150,
+      decoration: _boxDeco(context, borderColor),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _bookmarkIcon(),
+          Get.find<IConfig>().generalConfig.folderSeparator.ReadOnlyWidget((separator) =>
+            Text(bookmark.id.substring(bookmark.id.lastIndexOf(separator) + 1)
+          ))
+        ],
       ),
     ),
   );
 
-  BoxDecoration _boxDeco(final Color borderColor) => BoxDecoration(
-    color: Colors.transparent,
+  BoxDecoration _boxDeco(final BuildContext context, final Color borderColor) => BoxDecoration(
+    color: context.theme.colorScheme.surface.withOpacity(0.8),
     border: Border.all(color: borderColor),
     borderRadius: BorderRadius.circular(10),
     boxShadow: [BoxShadow(color: borderColor, blurRadius: 3, blurStyle: BlurStyle.outer)]
@@ -100,23 +96,13 @@ class NeonBookmarkView extends StatelessWidget {
       return Icon(iconData, size: 70, color: bookmark.primaryColor);
     }
 
-    return Stack(
-      children: [
-        ClipRRect(
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-          )
-        ),
-        ImageNetwork(
-          onTap: _openUrl,
-          image: bookmark.iconUri ?? "",
-          height: 70,
-          width: 70,
-        ),
-      ],
+    return ImageNetwork(
+      onTap: _openUrl,
+      image: bookmark.iconUri ?? "",
+      height: 70,
+      width: 70,
     );
   }
 
-  void _openUrl() =>
-      (bookmark.openInSame ?? false) ? window.location.href = bookmark.url : window.open(bookmark.url, "new tab");
+  void _openUrl() => launch(bookmark.url, isNewTab: !(bookmark.openInSame ?? false));
 }

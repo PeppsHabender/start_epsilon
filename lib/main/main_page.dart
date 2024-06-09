@@ -19,46 +19,48 @@ class MainPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      body: Stack(
-        children: [
-          const Center(child: _BackgroundAnimation()),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: SizedBox(
-                            width: max(400, context.width / 3.5),
-                            height: 40,
-                            child: SearchBox()
-                        ),
+    body: Stack(
+      children: [
+        const Center(child: _BackgroundAnimation()),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Center(
+                      child: SizedBox(
+                          width: max(400, context.width / 3.5),
+                          height: 40,
+                          child: SearchBox()
                       ),
                     ),
-                    IconButton.outlined(
-                        onPressed: () => _controller._closeable.value == null 
-                            ? _controller.showWidget(AddBookmark())
-                            : _controller.closeWidget(AddBookmark),
-                        icon: _controller._closeable.ReadOnlyWidget((h) => Icon(h == null ? Icons.add : Icons.close, size: 30))
-                    ),
-                  ],
-                ),
+                  ),
+                  IconButton.outlined(
+                      onPressed: () => _controller._closeable.value == null
+                          ? _controller.showWidget(AddBookmark())
+                          : _controller.closeWidget(AddBookmark),
+                      icon: _controller._closeable.ReadOnlyWidget((h) => Icon(h == null ? Icons.add : Icons.close, size: 30))
+                  ),
+                ],
               ),
-              _controller._closeable.ReadOnlyWidget((widget) => widget ?? const SizedBox()),
-              const SizedBox(height: 15),
-              Expanded(
-                  child: Align(alignment: Alignment.topLeft, child: FlatBookmarkView())
-              ),
-            ],
-          ),
-        ],
-      )
+            ),
+            _controller._closeable.ReadOnlyWidget((widget) => widget ?? const SizedBox()),
+            const SizedBox(height: 15),
+            Expanded(
+                child: Align(alignment: Alignment.topLeft, child: FlatBookmarkView())
+            ),
+          ],
+        ),
+      ],
+    ),
   );
 }
+
 
 class MainController extends GetxController {
   final Rx<StatelessWidget?> _closeable = (null as StatelessWidget?).obs;

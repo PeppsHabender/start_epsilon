@@ -8,6 +8,7 @@ import 'package:start_page/bookmarks/add_bookmarks/add_bookmark.dart';
 import 'package:start_page/bookmarks/flat_bookmarks/flat_bookmark_view.dart';
 import 'package:start_page/search/search_bar.dart';
 import 'package:start_page/utils/extensions.dart';
+import 'package:start_page/utils/utils.dart';
 import 'package:svg_path_parser/svg_path_parser.dart';
 
 part 'main_page_widgets.dart';

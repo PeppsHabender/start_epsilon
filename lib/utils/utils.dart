@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/rendering.dart';
 import 'package:start_page/utils/extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,4 +22,41 @@ Color? averageColor(final Iterable<Color> colors) {
       result.$2 ~/ len,
       result.$3 ~/ len
   );
+}
+
+class PathPainter extends CustomPainter {
+  final Path path;
+  final Paint painter;
+  final bool Function(CustomPainter)? shouldRebuild;
+
+  PathPainter({
+    required this.path,
+    this.shouldRebuild,
+    double strokeWidth = 5,
+    StrokeCap strokeCap = StrokeCap.round,
+    PaintingStyle style = PaintingStyle.stroke,
+    bool isAntiAlias = true,
+    StrokeJoin strokeJoin = StrokeJoin.round,
+    MaskFilter? maskFilter,
+    Shader? shader
+  }) : painter = Paint()
+    ..strokeWidth = strokeWidth
+    ..strokeCap = strokeCap
+    ..style = style
+    ..isAntiAlias = isAntiAlias
+    ..strokeJoin = strokeJoin
+    ..maskFilter = maskFilter
+    ..shader = shader;
+
+  PathPainter.paint({
+    required this.path,
+    required Paint paint,
+    this.shouldRebuild
+  }) : painter = paint;
+
+  @override
+  void paint(Canvas canvas, Size size) => canvas.drawPath(path, painter);
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => shouldRebuild?.call(oldDelegate) ?? false;
 }

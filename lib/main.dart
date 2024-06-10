@@ -23,13 +23,13 @@ class MyApp extends StatelessWidget {
     themeMode: ThemeMode.dark,
     theme: ThemeData.light(useMaterial3: true),
     darkTheme: ThemeData.dark(useMaterial3: true),
-    initialBinding: StartPageBindings(),
+    initialBinding: EpsilonBindings(),
     initialRoute: "/",
     getPages: [GetPage(name: "/", page: () => MainPage())],
   );
 }
 
-class StartPageBindings extends Bindings {
+class EpsilonBindings extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<IConfig>(() => StartPageConfig());

@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:start_page/config/config.dart';
 
@@ -13,16 +12,18 @@ class StartPageConfig extends IConfig {
   @override
   void save() {
     searchConfig.save();
+    generalConfig.save();
   }
 
   @override
   void reload() {
     searchConfig.reload();
+    generalConfig.reload();
   }
 }
 
 enum SearchEngine {
-  GOOGLE("https://www.google.com/search?q=");
+  GOOGLE("https://www.google.com/search?q={0}");
 
   final String baseUri;
 
@@ -49,10 +50,13 @@ class SearchConfig extends IConfigElement {
 
 class GeneralConfig extends IConfigElement {
   final RxString folderSeparator = ">".obs;
-  final RxString corsProxy = "https://corsproxy.io/?".obs;
-  final Rx<Color?> primaryColor = (null as Color?).obs;
+  final RxString corsProxy = "https://corsproxy.io/?{0}".obs;
+  final Rx<Color> primaryColor = Rx(Colors.purple);
+  final Rx<Color> secondaryColor = Rx(Colors.red);
 
-  GeneralConfig._();
+  GeneralConfig._() {
+    reload();
+  }
 
   @override
   void reload() => _fromJson(getAsJson());
@@ -60,12 +64,14 @@ class GeneralConfig extends IConfigElement {
   Map<String, dynamic> toJson() => {
     "folderSeparator": folderSeparator.value,
     "corsProxy": corsProxy.value,
-    "primaryColor": primaryColor.value
+    "primaryColor": primaryColor.value.value,
+    "secondaryColor": secondaryColor.value.value
   };
 
   _fromJson(Map<String, dynamic> json) {
-    folderSeparator.value = json["folderSeparator"];
-    corsProxy.value = json["corsProxy"];
-    primaryColor.value = json["primaryColor"];
+    folderSeparator.value = json["folderSeparator"] ?? ">";
+    corsProxy.value = json["corsProxy"] ?? "";
+    primaryColor.value = json["primaryColor"] == null ? Colors.purple : Color(json["primaryColor"]);
+    secondaryColor.value = json["secondaryColor"] == null ? Colors.red : Color(json["secondaryColor"]);
   }
 }

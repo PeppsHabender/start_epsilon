@@ -64,7 +64,7 @@ class _FlatFolderView extends StatelessWidget {
           ...merged.map((e) => Text(e, style: TextStyle(fontSize: 25.0 - (depth * 0.3))))
               .expand((e) => [Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: Text(">", style: TextStyle(fontSize: 25.0 - (depth * 0.3), color: context.theme.colorScheme.primary)),
+            child: Text(IBookmarkService.separator(), style: TextStyle(fontSize: 25.0 - (depth * 0.3), color: context.theme.colorScheme.primary)),
           ), e])
         ],
       ),

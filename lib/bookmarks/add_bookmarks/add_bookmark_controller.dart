@@ -8,6 +8,7 @@ import 'package:rx_future/rx_future.dart';
 import 'package:start_page/config/bookmarks.dart';
 import 'package:start_page/config/config.dart';
 import 'package:start_page/config/config_impl.dart';
+import 'package:start_page/utils/extensions.dart';
 
 class AddBookmarkController extends GetxController {
   Bookmark? _bookmark;
@@ -25,12 +26,15 @@ class AddBookmarkController extends GetxController {
   final GeneralConfig config = Get.find<IConfig>().generalConfig;
 
   late String addText;
+  late Rx<Color> displayColor;
 
   Timer? _typingTimer;
 
   AddBookmarkController();
 
   void adjustTo(Bookmark? bookmark) {
+    displayColor = primaryColor.or(Get.find<IConfig>().generalConfig.primaryColor);
+
     if(bookmark == null) {
       addText = "Add";
       reset();
@@ -46,7 +50,7 @@ class AddBookmarkController extends GetxController {
     selectedIcon.value = bookmark.iconData;
 
     openInNewTab.value = !(bookmark.openInSame ?? true);
-    primaryColor.value = bookmark.primaryColor;
+    primaryColor.value = bookmark.primaryColor.value;
 
     addText = "Edit";
   }

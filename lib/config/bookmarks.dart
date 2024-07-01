@@ -5,13 +5,18 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_iconpicker/Serialization/icondata_serialization.dart';
 import 'package:get/get.dart';
 import 'package:start_page/config/config.dart';
+import 'package:start_page/utils/extensions.dart';
 
 const String _prefix = "BOOKMARK\$";
 
 abstract class IComponent {
   abstract final String _id;
 
-  String get id => _id.substring(_id.lastIndexOf(IBookmarkService.separator()) + 1);
+  String get id {
+    if(IBookmarkService.separator().isEmpty) return _id;
+
+    return _id.substring(_id.lastIndexOf(IBookmarkService.separator()) + 1);
+  }
 
   IComponent _addBookmark(final List<String> ids, final Bookmark bookmark);
 
@@ -64,13 +69,15 @@ class Bookmark extends IComponent {
   final String? iconUri;
   final IconData? iconData;
   final bool? openInSame;
-  final Color? primaryColor;
+  final Color? _primaryColor;
+
+  Rx<Color> get primaryColor => Rx(_primaryColor).or(Get.find<IConfig>().generalConfig.primaryColor);
 
   void _setId(final String id) => _id = id;
 
   String get wholeId => _id;
 
-  Bookmark(this._id, this.url, this.iconUri, this.iconData, this.openInSame, this.primaryColor);
+  Bookmark(this._id, this.url, this.iconUri, this.iconData, this.openInSame, this._primaryColor);
 
   factory Bookmark.fromJson(final Map<String, dynamic> json) => Bookmark(
     json["id"] ?? "",
@@ -86,7 +93,7 @@ class Bookmark extends IComponent {
     "iconUri": iconUri,
     "iconData": iconData == null ? null : serializeIcon(iconData!),
     "openInSame": openInSame,
-    "primaryColor": primaryColor?.value
+    "primaryColor": _primaryColor?.value
   };
 
   Bookmark copyWith({
@@ -102,7 +109,7 @@ class Bookmark extends IComponent {
     iconUri ?? this.iconUri,
     iconData ?? this.iconData,
     openInSame ?? this.openInSame,
-    primaryColor ?? this.primaryColor
+    primaryColor ?? _primaryColor
   );
 
   @override
@@ -127,7 +134,11 @@ abstract class IBookmarkService {
   void addBookmark(final Bookmark bookmark, [final Bookmark? old]);
   void removeBookmark(Bookmark bookmark);
 
-  static String separator() => Get.find<IConfig>().generalConfig.folderSeparator.value;
+  static String separator() {
+    final String sep = Get.find<IConfig>().generalConfig.folderSeparator.value;
+
+    return sep.isEmpty ? ">" : sep;
+  }
 }
 
 class _BookmarkService extends IBookmarkService {

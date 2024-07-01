@@ -8,12 +8,13 @@ import 'package:image_network/image_network.dart';
 import 'package:start_page/abstract.dart';
 import 'package:start_page/bookmarks/add_bookmarks/add_bookmark_controller.dart';
 import 'package:start_page/config/bookmarks.dart';
+import 'package:start_page/config/config.dart';
 import 'package:start_page/utils/extensions.dart';
 import 'package:start_page/utils/widgets.dart';
 
 part 'add_bookmark_helper.dart';
 
-class AddBookmark extends CloseableWidget {
+class AddBookmark extends StatelessWidget with CloseableDrawerWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final Bookmark? bookmark;
 
@@ -23,7 +24,6 @@ class AddBookmark extends CloseableWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.find<AddBookmarkController>().primaryColor.value ??= context.theme.colorScheme.onSurface;
     Get.find<AddBookmarkController>().adjustTo(bookmark);
 
     return Center(
@@ -48,7 +48,7 @@ class AddBookmark extends CloseableWidget {
                       const SizedBox(height: 15),
                       Expandable(
                         title: "Additional Settings",
-                        color: Get.find<AddBookmarkController>().primaryColor,
+                        color: Get.find<AddBookmarkController>().primaryColor.or(Get.find<IConfig>().generalConfig.primaryColor),
                         child: _additionalSettings()
                       ),
                       const SizedBox(height: 20),

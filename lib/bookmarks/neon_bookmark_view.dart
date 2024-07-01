@@ -15,66 +15,64 @@ class NeonBookmarkView extends StatelessWidget {
   NeonBookmarkView(this.bookmark, {super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final Color borderColor = bookmark.primaryColor ?? Colors.transparent;
-
-    return SizedBox(
-      height: 150,
-      width: 150,
-      child: _rightClicked.ReadOnlyWidget((r) {
-        final List<Widget> addItems = [];
-        if(r) {
-          addItems.add(
-            Expanded(
-              child: Container(
-                decoration: _boxDeco(context, borderColor),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(onPressed: () {
-                      Get.find<MainController>().closeWidget(AddBookmark);
-                      Get.find<MainController>().showWidget(AddBookmark(bookmark: bookmark));
-                      _rightClicked.toggle();
-                    }, icon: const Icon(Icons.edit, size: 20,)),
-                    IconButton(onPressed: () => Get.find<IBookmarkService>().removeBookmark(bookmark), icon: const Icon(Icons.delete, size: 20,))
-                  ],
-                ),
+  Widget build(BuildContext context) => SizedBox(
+    height: 150,
+    width: 150,
+    child: _rightClicked.combine(bookmark.primaryColor).ReadOnlyWidget((r) {
+      final List<Widget> addItems = [];
+      if(r.$1) {
+        addItems.add(
+          Expanded(
+            child: Container(
+              decoration: _boxDeco(context, r.$2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(onPressed: () {
+                    Get.find<MainController>().closeWidget(AddBookmark, WidgetType.topBar);
+                    Get.find<MainController>().showWidget(AddBookmark(bookmark: bookmark), WidgetType.topBar);
+                    _rightClicked.toggle();
+                  }, icon: const Icon(Icons.edit, size: 20,)),
+                  IconButton(onPressed: () => Get.find<IBookmarkService>().removeBookmark(bookmark), icon: const Icon(Icons.delete, size: 20,))
+                ],
               ),
-            )
-          );
-          addItems.add(const SizedBox(height: 5));
-        }
-
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...addItems,
-            Expanded(flex: 3, child: _bookmarkView(context, borderColor))
-          ],
+            ),
+          )
         );
-      }),
-    );
-  }
+        addItems.add(const SizedBox(height: 5));
+      }
 
-  Widget _bookmarkView(final BuildContext context, final Color borderColor) => InkWell(
-    onTap: _openUrl,
-    onSecondaryTap: _rightClicked.toggle,
-    hoverColor: context.theme.highlightColor.lighter(),
-    splashColor: bookmark.primaryColor,
-    borderRadius: BorderRadius.circular(10),
-    child: Container(
-      width: 150,
-      decoration: _boxDeco(context, borderColor),
-      child: Column(
+      return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _bookmarkIcon(),
-          Get.find<IConfig>().generalConfig.folderSeparator.ReadOnlyWidget((separator) =>
-            Text(bookmark.id.substring(bookmark.id.lastIndexOf(separator) + 1)
-          ))
+          ...addItems,
+          Expanded(flex: 3, child: _bookmarkView(context, r.$2))
         ],
+      );
+    }),
+  );
+
+  Widget _bookmarkView(final BuildContext context, final Color borderColor) => bookmark.primaryColor.ReadOnlyWidget(
+    (color) => InkWell(
+      onTap: _openUrl,
+      onSecondaryTap: _rightClicked.toggle,
+      hoverColor: context.theme.highlightColor.lighter(),
+      splashColor: color,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: 150,
+        decoration: _boxDeco(context, borderColor),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _bookmarkIcon(),
+            Get.find<IConfig>().generalConfig.folderSeparator.ReadOnlyWidget((separator) =>
+              Text(bookmark.id.substring(separator.isEmpty ? 0 : bookmark.id.lastIndexOf(separator) + 1)
+            ))
+          ],
+        ),
       ),
-    ),
+    )
   );
 
   BoxDecoration _boxDeco(final BuildContext context, final Color borderColor) => BoxDecoration(
@@ -93,7 +91,7 @@ class NeonBookmarkView extends StatelessWidget {
     }
 
     if(iconData != null) {
-      return Icon(iconData, size: 70, color: bookmark.primaryColor);
+      return bookmark.primaryColor.ReadOnlyWidget((color) => Icon(iconData, size: 70, color: color));
     }
 
     return ImageNetwork(

@@ -1,7 +1,9 @@
 part of 'main_page.dart';
 
 class _BackgroundAnimation extends StatefulWidget {
-  const _BackgroundAnimation();
+  final List<Color> colors;
+
+  const _BackgroundAnimation({required this.colors, super.key});
 
   @override
   State<_BackgroundAnimation> createState() => _BackgroundAnimationState();
@@ -9,14 +11,6 @@ class _BackgroundAnimation extends StatefulWidget {
 
 class _BackgroundAnimationState extends State<_BackgroundAnimation> with SingleTickerProviderStateMixin {
   static final Path _epsilon = parseSvgPath("M -152 -160 L 152 -160 L 152 -80 L 120 -112 L -56 -112 L 40 0 L -56 128 L 120 128 L 152 -32 L 152 176 L -152 176 L -14 0 L -152 -160");
-  static final Shader _gradientShader = const RadialGradient(
-    center: Alignment.center,
-    radius: 20,
-    colors: [Colors.red, Colors.purple],
-  ).createShader(Offset.zero & const Size(15, 15));
-
-  static final _blurPaint = _createPaint(strokeWidth: 10, maskFilter: const MaskFilter.blur(BlurStyle.normal, 10));
-  static final _sharpPaint = _createPaint(strokeWidth: 6);
 
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -27,6 +21,10 @@ class _BackgroundAnimationState extends State<_BackgroundAnimation> with SingleT
     parent: _controller,
     curve: Curves.linear,
   );
+
+  late final Shader _gradientShader;
+  late final _blurPaint = _createPaint(strokeWidth: 10, maskFilter: const MaskFilter.blur(BlurStyle.normal, 10));
+  late final _sharpPaint = _createPaint(strokeWidth: 6);
 
   final RxBool _animFinished = false.obs;
 
@@ -39,6 +37,13 @@ class _BackgroundAnimationState extends State<_BackgroundAnimation> with SingleT
       });
       _controller.forward();
     });
+
+    final GeneralConfig config = Get.find<IConfig>().generalConfig;
+    _gradientShader = RadialGradient(
+      center: Alignment.center,
+      radius: 20,
+      colors: [config.secondaryColor.value, config.primaryColor.value],
+    ).createShader(Offset.zero & const Size(15, 15));
   }
 
   @override
@@ -46,7 +51,7 @@ class _BackgroundAnimationState extends State<_BackgroundAnimation> with SingleT
     (finished) => Stack(
       children: [
         ...finished ? [
-          _NeonFlickerEffect(path: _epsilon),
+          _NeonFlickerEffect(path: _epsilon, colors: widget.colors),
           CustomPaint(painter: PathPainter.paint(path: _epsilon, paint: _createPaint()))
         ] : [
           _createPath(paint: _blurPaint),
@@ -82,7 +87,7 @@ class _BackgroundAnimationState extends State<_BackgroundAnimation> with SingleT
     super.dispose();
   }
 
-  static Paint _createPaint({MaskFilter? maskFilter, double? strokeWidth}) => Paint()
+  Paint _createPaint({MaskFilter? maskFilter, double? strokeWidth}) => Paint()
     ..strokeWidth = strokeWidth ?? 7
     ..strokeCap = StrokeCap.round
     ..style = PaintingStyle.stroke
@@ -119,7 +124,7 @@ class _NeonFlickerEffect extends StatefulWidget {
   final Path path;
   final List<Color> colors;
 
-  const _NeonFlickerEffect({required this.path, this.colors = const [Colors.red, Colors.pink, Colors.purple]});
+  const _NeonFlickerEffect({required this.path, required this.colors});
 
   @override
   _NeonFlickerEffectState createState() => _NeonFlickerEffectState();
@@ -151,8 +156,8 @@ class _NeonFlickerEffectState extends State<_NeonFlickerEffect> with SingleTicke
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -164,4 +169,56 @@ class _NeonFlickerEffectState extends State<_NeonFlickerEffect> with SingleTicke
       ),
     );
   }
+}
+
+class _DrawerButton extends StatefulWidget {
+  const _DrawerButton();
+
+  @override
+  State<_DrawerButton> createState() => _DrawerButtonState();
+}
+
+class _DrawerButtonState extends State<_DrawerButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Get.find<IConfig>().generalConfig.primaryColor.ReadOnlyWidget(
+    (color) => IconButton.outlined(
+      style: ButtonStyle(side: WidgetStateProperty.all(BorderSide(color: color))),
+      onPressed: () {
+        final MainController mainController = Get.find();
+        if(mainController.widget(WidgetType.drawer) == null) {
+          mainController.showWidget(const ConfigDrawer(), WidgetType.drawer);
+          _controller.forward();
+        } else {
+          mainController.closeWidget(ConfigDrawer, WidgetType.drawer);
+          _controller.reverse();
+        }
+      },
+      icon: AnimatedIcon(
+        icon: AnimatedIcons.menu_arrow,
+        progress: _animation,
+        size: 30,
+      ),
+    )
+  );
 }

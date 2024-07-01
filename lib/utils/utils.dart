@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/rendering.dart';
 import 'package:start_page/utils/extensions.dart';
 import 'package:url_launcher/url_launcher.dart';

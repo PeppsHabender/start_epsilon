@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:start_page/config/config.dart';
+import 'package:start_page/utils/extensions.dart';
 
 import '../config/config_impl.dart';
 
@@ -15,7 +16,7 @@ Future<List<List<SearchResult>>?> googleSuggestions(final String base, {final in
   final String searchUrl = Uri.encodeFull(
       "https://google.com/complete/search?output=toolbar&client=firefox&q=$base");
 
-  final http.Response response = await http.get(Uri.parse("${config.corsProxy.value}$searchUrl"));
+  final http.Response response = await http.get(Uri.parse(config.corsProxy.value.format([searchUrl])));
 
   if (response.statusCode > 200) return null;
 

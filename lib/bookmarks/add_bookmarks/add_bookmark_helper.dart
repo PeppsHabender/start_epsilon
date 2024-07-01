@@ -1,30 +1,32 @@
 part of 'add_bookmark.dart';
 
+Widget _coloredWidget(Widget Function(Color) builder) => Get.find<IConfig>().generalConfig.primaryColor.ReadOnlyWidget(
+  (globalPrim) => Get.find<AddBookmarkController>().primaryColor.ReadOnlyWidget((color) => builder(color ?? globalPrim))
+);
+
 Widget _neonBorder(final BuildContext context) => Positioned.fill(
-  child: Get.find<AddBookmarkController>().primaryColor.ReadOnlyWidget(
-    (color) => IgnorePointer(
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.theme.colorScheme.background.darker(0.02),
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: color == null ? [] : [BoxShadow(color: color, blurRadius: 5, blurStyle: BlurStyle.outer)]
-        ),
+  child: _coloredWidget((color) => IgnorePointer(
+    child: Container(
+      decoration: BoxDecoration(
+        color: context.theme.colorScheme.surface.darker(0.02),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [BoxShadow(color: color, blurRadius: 5, blurStyle: BlurStyle.outer)]
       ),
-    ),
+    )),
   )
 );
 
 Widget _header(final BuildContext context) => Align(
   alignment: Alignment.centerLeft,
-  child: Get.find<AddBookmarkController>().primaryColor.ReadOnlyWidget(
-      (color) => Text("New Bookmark",
+  child: _coloredWidget(
+    (color) => Text("New Bookmark",
       style: context.textTheme.headlineMedium?.copyWith(color: color)
     ),
   )
 );
 
 Widget _idTextfield() => FocusColorChangingTextFormField(
-  color: Get.find<AddBookmarkController>().primaryColor,
+  color: Get.find<AddBookmarkController>().displayColor,
   validator: (v) => v == null || v.isEmpty ? "Id may not be empty" : null,
   labelText: "Enter identifier for your bookmark (Use '>' to separate into folders)",
   controller: Get.find<AddBookmarkController>().idController
@@ -52,7 +54,7 @@ Widget _urlIconEditor(final BuildContext context) => Row(
             height: 50,
             child: RxGlowIcon(
               icon,
-              color: Get.find<AddBookmarkController>().primaryColor,
+              color: Get.find<AddBookmarkController>().displayColor,
               size: 30
             )
           );
@@ -63,7 +65,7 @@ Widget _urlIconEditor(final BuildContext context) => Row(
 );
 
 Widget _urlTextfield() => FocusColorChangingTextFormField(
-  color: Get.find<AddBookmarkController>().primaryColor,
+  color: Get.find<AddBookmarkController>().displayColor,
   validator: (v) => v == null || v.isEmpty ? "Url may not be empty" : null,
   labelText: "Enter url of the bookmark",
   controller: Get.find<AddBookmarkController>().urlController,
@@ -80,7 +82,11 @@ Widget _favIconDisplay(final BuildContext context, final String url) => ImageNet
   onLoading: const SizedBox(width: 30, height: 30, child: CircularProgressIndicator()),
   onError: Tooltip(
     message: "Failed to fetch icon for the given url..",
-    child: RxGlowIcon(Icons.add_circle_outline, color: Get.find<AddBookmarkController>().primaryColor, size: 30)
+    child: RxGlowIcon(
+      Icons.add_circle_outline,
+      color: Get.find<AddBookmarkController>().displayColor,
+      size: 30
+    )
   ),
 );
 
@@ -112,9 +118,9 @@ Widget _additionalSettings() => Column(
 Widget _newTabToggle() => Row(
   children: [
     Obx(() => Checkbox(
-        value: Get.find<AddBookmarkController>().openInNewTab.value,
-        onChanged: (b) => Get.find<AddBookmarkController>().openInNewTab.value = b ?? true,
-        activeColor: Get.find<AddBookmarkController>().primaryColor.value
+      value: Get.find<AddBookmarkController>().openInNewTab.value,
+      onChanged: (b) => Get.find<AddBookmarkController>().openInNewTab.value = b ?? true,
+      activeColor: Get.find<AddBookmarkController>().displayColor.value
     )),
     const Text("Open bookmark in new tab?")
   ],
@@ -125,7 +131,7 @@ Widget _colorPicker() => InkWell(
     Center(
       child: Card(
         child: BlockPicker(
-          pickerColor: Get.find<AddBookmarkController>().primaryColor.value,
+          pickerColor: Get.find<AddBookmarkController>().displayColor.value,
           onColorChanged: (color) {
             Get.find<AddBookmarkController>().primaryColor.value = color;
             Get.back(closeOverlays: true);
@@ -137,14 +143,14 @@ Widget _colorPicker() => InkWell(
   child: _colorPickerContent()
 );
 
-Widget _colorPickerContent() => Get.find<AddBookmarkController>().primaryColor.ReadOnlyWidget(
+Widget _colorPickerContent() => _coloredWidget(
   (color) => Container(
     width: 30,
     height: 30,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
       color: color,
-      boxShadow: color == null ? [] : [
+      boxShadow: [
         BoxShadow(
         color: color,
         blurStyle: BlurStyle.outer,
@@ -160,7 +166,7 @@ Widget _submitButton(final BuildContext context, final GlobalKey<FormState> form
 
   return Align(
     alignment: Alignment.centerRight,
-    child: controller.primaryColor.ReadOnlyWidget(
+    child: _coloredWidget(
       (color) => OutlinedButton(
         onPressed: () {
           if(formKey.currentState?.validate() == false) {
@@ -172,7 +178,7 @@ Widget _submitButton(final BuildContext context, final GlobalKey<FormState> form
 
           close();
         },
-        style: color == null ? null : OutlinedButton.styleFrom(side: BorderSide(color: color)),
+        style: OutlinedButton.styleFrom(side: BorderSide(color: color)),
         child: Text(controller.addText, style: TextStyle(color: context.theme.colorScheme.onSurface))
       ),
     ),

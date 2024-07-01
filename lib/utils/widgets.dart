@@ -89,6 +89,8 @@ class FocusColorChangingTextFormField extends StatelessWidget {
   final String? Function(String? v)? validator;
   final void Function(String? v)? onChanged;
   final String? labelText;
+  final String? hintText;
+  final InputBorder? Function(Color?)? border;
   final TextEditingController? controller;
 
   final RxBool _focused = false.obs;
@@ -99,6 +101,8 @@ class FocusColorChangingTextFormField extends StatelessWidget {
     this.validator,
     this.onChanged,
     this.labelText,
+    this.hintText,
+    this.border,
     this.controller,
     super.key
   }) {
@@ -114,9 +118,11 @@ class FocusColorChangingTextFormField extends StatelessWidget {
       controller: controller ?? TextEditingController(),
       decoration: InputDecoration(
         labelText: labelText,
+        hintText: hintText,
+        border: border?.call(null),
         focusedBorder: color.value == null
             ? null
-            : UnderlineInputBorder(borderSide: BorderSide(color: color.value!)),
+            : border?.call(color.value!) ?? UnderlineInputBorder(borderSide: BorderSide(color: color.value!)),
         labelStyle: TextStyle(color: _focused.value ? color.value : null)
       )
     )

@@ -49,6 +49,8 @@ dependencies:
   flutter_glow: ^0.3.0
   svg_path_parser: ^1.1.2
   animated_path: ^0.0.2
+  sprintf: ^7.0.0
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:
